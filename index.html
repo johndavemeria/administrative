@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Looms - Administrative System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <h1>🏢 Urban Looms</h1>
+        <p>Administrative Management System</p>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard-content">
+            <div class="dashboard-grid">
+                <div class="module-card" onclick="showModule('facilities')">
+                    <div class="module-icon">🏢</div>
+                    <h3 class="module-title">Facilities Reservation</h3>
+                    <p class="module-description">Manage room bookings, conference halls, and facility reservations</p>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="active-bookings">0</div>
+                            <div class="stat-label">Active Bookings</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="pending-bookings">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="showModule('documents')">
+                    <div class="module-icon">📁</div>
+                    <h3 class="module-title">Document Management</h3>
+                    <p class="module-description">Archive, organize, and manage all company documents</p>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-documents">0</div>
+                            <div class="stat-label">Documents</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-categories">0</div>
+                            <div class="stat-label">Categories</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="showModule('legal')">
+                    <div class="module-icon">⚖️</div>
+                    <h3 class="module-title">Legal Management</h3>
+                    <p class="module-description">Manage contracts, compliance, and legal documentation</p>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="active-contracts">0</div>
+                            <div class="stat-label">Active Contracts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="expiring-soon">0</div>
+                            <div class="stat-label">Expiring Soon</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module-card" onclick="showModule('visitors')">
+                    <div class="module-icon">👥</div>
+                    <h3 class="module-title">Visitor Management</h3>
+                    <p class="module-description">Track and manage visitor access and appointments</p>
+                    <div class="module-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Today's Visitors</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Scheduled</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facilities Reservation Module -->
+        <div id="facilities" class="main-content">
+            <div class="content-header">
+                <h2 class="content-title">Facilities Reservation</h2>
+                <div>
+                    <button class="btn back-btn" onclick="showDashboard()">← Back to Dashboard</button>
+                    <button class="btn" onclick="openModal('facilitiesModal')">+ New Reservation</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="facilities-loading">Loading reservations...</div>
+            
+            <table class="table" id="facilities-table">
+                <thead>
+                    <tr>
+                        <th>Facility</th>
+                        <th>Reserved By</th>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="facilities-tbody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Document Management Module -->
+        <div id="documents" class="main-content">
+            <div class="content-header">
+                <h2 class="content-title">Document Management</h2>
+                <div>
+                    <button class="btn back-btn" onclick="showDashboard()">← Back to Dashboard</button>
+                    <button class="btn" onclick="openModal('documentsModal')">+ Upload Document</button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label class="filter-label">Category:</label>
+                    <select id="category-filter" class="filter-select" onchange="filterDocuments()">
+                        <option value="">All Categories</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Report">Report</option>
+                        <option value="Policy">Policy</option>
+                        <option value="Memo">Memo</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status:</label>
+                    <select id="status-filter" class="filter-select" onchange="filterDocuments()">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <input type="text" id="search-documents" class="filter-search" placeholder="🔍 Search documents..." oninput="filterDocuments()">
+                </div>
+            </div>
+            
+            <div class="loading" id="documents-loading">Loading documents...</div>
+            
+            <table class="table" id="documents-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Uploaded By</th>
+                        <th>Upload Date</th>
+                        <th>Size</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="documents-tbody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Legal Management Module -->
+        <div id="legal" class="main-content">
+            <div class="content-header">
+                <h2 class="content-title">Legal Management</h2>
+                <div>
+                    <button class="btn back-btn" onclick="showDashboard()">← Back to Dashboard</button>
+                    <button class="btn" onclick="openModal('legalModal')">+ New Legal Document</button>
+                </div>
+            </div>
+
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label class="filter-label">Document Type:</label>
+                    <select id="legal-type-filter" class="filter-select" onchange="filterLegalDocuments()">
+                        <option value="">All Types</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Agreement">Agreement</option>
+                        <option value="NDA">NDA</option>
+                        <option value="License">License</option>
+                        <option value="Policy">Policy</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status:</label>
+                    <select id="legal-status-filter" class="filter-select" onchange="filterLegalDocuments()">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="draft">Draft</option>
+                        <option value="pending_review">Pending Review</option>
+                        <option value="expired">Expired</option>
+                        <option value="terminated">Terminated</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <input type="text" id="search-legal" class="filter-search" placeholder="🔍 Search legal documents..." oninput="filterLegalDocuments()">
+                </div>
+            </div>
+            
+            <div class="loading" id="legal-loading">Loading legal documents...</div>
+            
+            <table class="table" id="legal-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Type</th>
+                        <th>Parties Involved</th>
+                        <th>Effective Date</th>
+                        <th>Expiration Date</th>
+                        <th>Contract Value</th>
+                        <th>Attorney</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="legal-tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Visitor Management Module -->
+        <div id="visitors" class="main-content">
+            <div class="content-header">
+                <h2 class="content-title">Visitor Management</h2>
+                <div>
+                    <button class="btn back-btn" onclick="showDashboard()">← Back to Dashboard</button>
+                    <button class="btn" onclick="openModal('visitorsModal')">+ Register Visitor</button>
+                </div>
+            </div>
+
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label class="filter-label">Status:</label>
+                    <select id="visitor-status-filter" class="filter-select" onchange="filterVisitors()">
+                        <option value="">All Status</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="checked_in">Checked In</option>
+                        <option value="checked_out">Checked Out</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Visit Type:</label>
+                    <select id="visitor-type-filter" class="filter-select" onchange="filterVisitors()">
+                        <option value="">All Types</option>
+                        <option value="business">Business</option>
+                        <option value="interview">Interview</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="contractor">Contractor</option>
+                        <option value="guest">Guest</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <input type="text" id="search-visitors" class="filter-search" placeholder="🔍 Search visitors..." oninput="filterVisitors()">
+                </div>
+            </div>
+            
+            <div class="loading" id="visitors-loading">Loading visitors...</div>
+            
+            <table class="table" id="visitors-table">
+                <thead>
+                    <tr>
+                        <th>Visitor Name</th>
+                        <th>Company</th>
+                        <th>Host</th>
+                        <th>Visit Date & Time</th>
+                        <th>Type</th>
+                        <th>Purpose</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Badge #</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="visitors-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Facilities Modal -->
+    <div id="facilitiesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('facilitiesModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">New Facility Reservation</h3>
+            <form id="facilitiesForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Facility *</label>
+                        <select class="form-control" name="facility" required>
+                            <option value="">Select a facility</option>
+                            <option value="Conference Room A">Conference Room A</option>
+                            <option value="Conference Room B">Conference Room B</option>
+                            <option value="Meeting Room 1">Meeting Room 1</option>
+                            <option value="Meeting Room 2">Meeting Room 2</option>
+                            <option value="Training Room">Training Room</option>
+                            <option value="Board Room">Board Room</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reserved By *</label>
+                        <input type="text" class="form-control" name="reservedBy" placeholder="Enter name" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Date *</label>
+                        <input type="date" class="form-control" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time *</label>
+                        <input type="time" class="form-control" name="time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration (hours) *</label>
+                    <input type="number" class="form-control" name="duration" min="1" max="8" value="2" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Purpose</label>
+                    <textarea class="form-control" name="purpose" rows="3" placeholder="Meeting purpose"></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;" id="submitBtn">Create Reservation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Documents Modal -->
+    <div id="documentsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('documentsModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">Upload Document</h3>
+            <form id="documentsForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Document Name *</label>
+                        <input type="text" class="form-control" name="documentName" placeholder="Enter document name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Document Type *</label>
+                        <select class="form-control" name="documentType" required>
+                            <option value="">Select type</option>
+                            <option value="PDF">PDF</option>
+                            <option value="Word">Word Document</option>
+                            <option value="Excel">Excel Spreadsheet</option>
+                            <option value="PowerPoint">PowerPoint</option>
+                            <option value="Image">Image</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select class="form-control" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Invoice">Invoice</option>
+                            <option value="Report">Report</option>
+                            <option value="Policy">Policy</option>
+                            <option value="Memo">Memo</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Uploaded By *</label>
+                        <input type="text" class="form-control" name="uploadedBy" placeholder="Enter name" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Upload Date *</label>
+                        <input type="date" class="form-control" name="uploadDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">File Size (KB)</label>
+                        <input type="number" class="form-control" name="fileSize" placeholder="Enter file size" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">File URL</label>
+                    <input type="url" class="form-control" name="fileUrl" placeholder="https://example.com/document.pdf">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="3" placeholder="Document description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" class="form-control" name="tags" placeholder="e.g., important, confidential, 2024">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;" id="submitDocBtn">Upload Document</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legalModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('legalModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">New Legal Document</h3>
+            <form id="legalForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Document Name *</label>
+                        <input type="text" class="form-control" name="documentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Document Type *</label>
+                        <select class="form-control" name="documentType" required>
+                            <option value="">Select type</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Agreement">Agreement</option>
+                            <option value="NDA">NDA (Non-Disclosure)</option>
+                            <option value="License">License</option>
+                            <option value="Policy">Policy</option>
+                            <option value="Compliance">Compliance Document</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Contract Type</label>
+                        <select class="form-control" name="contractType">
+                            <option value="">Select contract type</option>
+                            <option value="Service Agreement">Service Agreement</option>
+                            <option value="Employment">Employment Contract</option>
+                            <option value="Vendor">Vendor Agreement</option>
+                            <option value="Partnership">Partnership Agreement</option>
+                            <option value="Lease">Lease Agreement</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department *</label>
+                        <input type="text" class="form-control" name="department" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Parties Involved (comma-separated) *</label>
+                    <input type="text" class="form-control" name="partyNames" placeholder="Company A, Company B" required>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Effective Date *</label>
+                        <input type="date" class="form-control" name="effectiveDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expiration Date</label>
+                        <input type="date" class="form-control" name="expirationDate">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Renewal Date</label>
+                        <input type="date" class="form-control" name="renewalDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contract Value ($)</label>
+                        <input type="number" class="form-control" name="contractValue" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Attorney Assigned</label>
+                    <input type="text" class="form-control" name="attorneyAssigned">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Terms Summary</label>
+                    <textarea class="form-control" name="termsSummary" rows="3" placeholder="Brief summary of key terms"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Compliance Notes</label>
+                    <textarea class="form-control" name="complianceNotes" rows="3" placeholder="Compliance requirements and notes"></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">File URL</label>
+                        <input type="url" class="form-control" name="fileUrl">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">File Size (KB)</label>
+                        <input type="number" class="form-control" name="fileSize" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" class="form-control" name="tags" placeholder="confidential, annual, 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Created By *</label>
+                    <input type="text" class="form-control" name="createdBy" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;" id="submitLegalBtn">Create Legal Document</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Legal Modal -->
+    <div id="editLegalModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('editLegalModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">Edit Legal Document</h3>
+            <form id="editLegalForm">
+                <input type="hidden" name="id" id="edit-legal-id">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Document Name *</label>
+                        <input type="text" class="form-control" name="documentName" id="edit-legal-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Document Type *</label>
+                        <select class="form-control" name="documentType" id="edit-legal-type" required>
+                            <option value="Contract">Contract</option>
+                            <option value="Agreement">Agreement</option>
+                            <option value="NDA">NDA (Non-Disclosure)</option>
+                            <option value="License">License</option>
+                            <option value="Policy">Policy</option>
+                            <option value="Compliance">Compliance Document</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Contract Type</label>
+                        <select class="form-control" name="contractType" id="edit-legal-contract-type">
+                            <option value="">Select contract type</option>
+                            <option value="Service Agreement">Service Agreement</option>
+                            <option value="Employment">Employment Contract</option>
+                            <option value="Vendor">Vendor Agreement</option>
+                            <option value="Partnership">Partnership Agreement</option>
+                            <option value="Lease">Lease Agreement</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department *</label>
+                        <input type="text" class="form-control" name="department" id="edit-legal-department" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Parties Involved (comma-separated) *</label>
+                    <input type="text" class="form-control" name="partyNames" id="edit-legal-parties" required>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Effective Date *</label>
+                        <input type="date" class="form-control" name="effectiveDate" id="edit-legal-effective" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expiration Date</label>
+                        <input type="date" class="form-control" name="expirationDate" id="edit-legal-expiration">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Renewal Date</label>
+                        <input type="date" class="form-control" name="renewalDate" id="edit-legal-renewal">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contract Value ($)</label>
+                        <input type="number" class="form-control" name="contractValue" id="edit-legal-value" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Attorney Assigned</label>
+                    <input type="text" class="form-control" name="attorneyAssigned" id="edit-legal-attorney">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Terms Summary</label>
+                    <textarea class="form-control" name="termsSummary" id="edit-legal-terms" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Compliance Notes</label>
+                    <textarea class="form-control" name="complianceNotes" id="edit-legal-compliance" rows="3"></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">File URL</label>
+                        <input type="url" class="form-control" name="fileUrl" id="edit-legal-url">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">File Size (KB)</label>
+                        <input type="number" class="form-control" name="fileSize" id="edit-legal-size" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" class="form-control" name="tags" id="edit-legal-tags">
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Created By *</label>
+                        <input type="text" class="form-control" name="createdBy" id="edit-legal-creator" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status *</label>
+                        <select class="form-control" name="status" id="edit-legal-status" required>
+                            <option value="draft">Draft</option>
+                            <option value="pending_review">Pending Review</option>
+                            <option value="active">Active</option>
+                            <option value="expired">Expired</option>
+                            <option value="terminated">Terminated</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Update Legal Document</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Visitors Modal -->
+    <div id="visitorsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('visitorsModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">Register Visitor</h3>
+            <form id="visitorsForm" onsubmit="handleCreateVisitor(event)">
+                <h4 style="color: var(--primary-brown); margin-bottom: 1rem; margin-top: 0;">Visitor Information</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visitor Name *</label>
+                        <input type="text" class="form-control" name="visitorName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="visitorEmail">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" name="visitorPhone">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        <input type="text" class="form-control" name="visitorCompany">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">ID Type</label>
+                        <select class="form-control" name="visitorIdType">
+                            <option value="">Select ID type</option>
+                            <option value="Passport">Passport</option>
+                            <option value="Driver's License">Driver's License</option>
+                            <option value="National ID">National ID</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID Number</label>
+                        <input type="text" class="form-control" name="visitorIdNumber">
+                    </div>
+                </div>
+                
+                <h4 style="color: var(--primary-brown); margin-bottom: 1rem; margin-top: 1.5rem;">Visit Details</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visit Purpose *</label>
+                        <input type="text" class="form-control" name="visitPurpose" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Visit Type *</label>
+                        <select class="form-control" name="visitType" required>
+                            <option value="">Select type</option>
+                            <option value="business">Business Meeting</option>
+                            <option value="interview">Interview</option>
+                            <option value="delivery">Delivery</option>
+                            <option value="contractor">Contractor</option>
+                            <option value="guest">Guest</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visit Date *</label>
+                        <input type="date" class="form-control" name="visitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Arrival Time *</label>
+                        <input type="time" class="form-control" name="expectedArrivalTime" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Expected Departure Time</label>
+                        <input type="time" class="form-control" name="expectedDepartureTime">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meeting Location</label>
+                        <input type="text" class="form-control" name="meetingLocation" placeholder="e.g., Conference Room A">
+                    </div>
+                </div>
+                
+                <h4 style="color: var(--primary-brown); margin-bottom: 1rem; margin-top: 1.5rem;">Host Information</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Host Name *</label>
+                        <input type="text" class="form-control" name="hostName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Host Department</label>
+                        <input type="text" class="form-control" name="hostDepartment">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Host Contact</label>
+                    <input type="text" class="form-control" name="hostContact" placeholder="Phone or email">
+                </div>
+                
+                <h4 style="color: var(--primary-brown); margin-bottom: 1rem; margin-top: 1.5rem;">Access & Security</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Access Areas (comma-separated)</label>
+                        <input type="text" class="form-control" name="accessAreas" placeholder="e.g., Lobby, Floor 3, Conference Room">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Security Clearance</label>
+                        <select class="form-control" name="securityClearance">
+                            <option value="">Select clearance level</option>
+                            <option value="Public">Public</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Restricted">Restricted</option>
+                            <option value="Confidential">Confidential</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Number of Visitors *</label>
+                        <input type="number" class="form-control" name="numberOfVisitors" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Plate Number</label>
+                        <input type="text" class="form-control" name="vehiclePlateNumber">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Accompanying Visitors (comma-separated names)</label>
+                    <input type="text" class="form-control" name="accompanyingVisitors" placeholder="e.g., John Doe, Jane Smith">
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="escortRequired" style="width: auto; margin: 0;">
+                            Escort Required
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Escort Name</label>
+                        <input type="text" class="form-control" name="escortName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Special Requirements</label>
+                    <textarea class="form-control" name="specialRequirements" rows="2" placeholder="e.g., Wheelchair access, dietary restrictions"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea class="form-control" name="notes" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Created By *</label>
+                    <input type="text" class="form-control" name="createdBy" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;" id="submitVisitorBtn">Register Visitor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Visitors Modal -->
+    <div id="editVisitorsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('editVisitorsModal')">&times;</span>
+            <h3 style="color: var(--dark-brown); margin-bottom: 1.5rem;">Edit Visitor</h3>
+            <form id="editVisitorsForm" onsubmit="handleUpdateVisitor(event)">
+                <input type="hidden" name="id" id="edit-visitor-id">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visitor Name *</label>
+                        <input type="text" class="form-control" name="visitorName" id="edit-visitor-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="visitorEmail" id="edit-visitor-email">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" name="visitorPhone" id="edit-visitor-phone">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        <input type="text" class="form-control" name="visitorCompany" id="edit-visitor-company">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visit Purpose *</label>
+                        <input type="text" class="form-control" name="visitPurpose" id="edit-visitor-purpose" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Visit Type *</label>
+                        <select class="form-control" name="visitType" id="edit-visit-type" required>
+                            <option value="business">Business Meeting</option>
+                            <option value="interview">Interview</option>
+                            <option value="delivery">Delivery</option>
+                            <option value="contractor">Contractor</option>
+                            <option value="guest">Guest</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Host Name *</label>
+                        <input type="text" class="form-control" name="hostName" id="edit-host-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Host Department</label>
+                        <input type="text" class="form-control" name="hostDepartment" id="edit-host-department">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Visit Date *</label>
+                        <input type="date" class="form-control" name="visitDate" id="edit-visit-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Arrival Time *</label>
+                        <input type="time" class="form-control" name="expectedArrivalTime" id="edit-arrival-time" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Expected Departure Time</label>
+                        <input type="time" class="form-control" name="expectedDepartureTime" id="edit-departure-time">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meeting Location</label>
+                        <input type="text" class="form-control" name="meetingLocation" id="edit-meeting-location">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status *</label>
+                    <select class="form-control" name="status" id="edit-visitor-status" required>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="checked_in">Checked In</option>
+                        <option value="checked_out">Checked Out</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Update Visitor</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
