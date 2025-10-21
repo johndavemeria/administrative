@@ -1241,6 +1241,14 @@ const legalDocumentsSubscription = supabase
     )
     .subscribe();
 
+function goToApprovalCenter() {
+            if (confirm('Do you want to proceed?')) {
+                showNotification('Loading...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            }
+        }
 // Subscribe to real-time changes for visitors
 const visitorsSubscription = supabase
     .channel('visitors_changes')
