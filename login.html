@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Looms - Admin Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-section {
+            flex: 1;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .right-section {
+            flex: 1;
+            background: #8B5A3C;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-bottom: 2px solid #ddd;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+            background: transparent;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-bottom-color: #8B5A3C;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            max-width: 150px;
+            padding: 14px 30px;
+            background: #6D4C3D;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .login-btn:hover {
+            background: #5a3d30;
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .logo-container {
+            width: 350px;
+            height: 350px;
+            background: #8B5A3C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+           
+        }
+
+        .logo-inner {
+            width: 400px;
+            height: 400px;
+            background: #8B5A3C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 8px solid #8B5A3C;
+            
+            overflow: hidden;
+        }
+
+        .logo-inner::before {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 8px solid #A0522D;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .logo-image {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        .system-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-section,
+            .right-section {
+                flex: none;
+                width: 100%;
+            }
+
+            .logo-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .logo-inner {
+                width: 150px;
+                height: 150px;
+            }
+
+            .logo-inner::before {
+                width: 170px;
+                height: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <div class="login-form">
+                <h1>Sign in</h1>
+                <p class="subtitle">For Admin</p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username <span class="required">*</span></label>
+                        <input type="text" id="username" placeholder="admin" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" placeholder="********" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword()">👁</button>
+                        </div>
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    
+                    <button type="submit" class="login-btn" id="loginBtn">Log in</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <div class="logo-container">
+                <div class="logo-inner">
+                    <img src="logoo.png" alt="Urban Looms Logo" class="logo-image">
+                </div>
+            </div>
+            <h3 class="system-title">Administrative System</h3>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://imhfolbfxfsojtpwoddf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaGZvbGJmeGZzb2p0cHdvZGRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDg0NzksImV4cCI6MjA3MTg4NDQ3OX0.M-SxwxLrSqu2HR3p05G_Aq3zVEHwKx6vWYZSNTuPQw0';
+
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check if user is already logged in
+        async function checkAuth() {
+            const loggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (loggedIn === 'true') {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Call checkAuth on page load
+        checkAuth();
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '👁️';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function setLoading(isLoading) {
+            const loginBtn = document.getElementById('loginBtn');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (isLoading) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="loading"></span>';
+                usernameInput.disabled = true;
+                passwordInput.disabled = true;
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log in';
+                usernameInput.disabled = false;
+                passwordInput.disabled = false;
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                // Query the admins table to verify credentials
+                const { data: adminData, error } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .eq('is_active', true)
+                    .single();
+
+                if (error || !adminData) {
+                    showError('Invalid username or password');
+                    setLoading(false);
+                    return;
+                }
+
+                // Update last login
+                await supabase
+                    .from('admins')
+                    .update({ last_login: new Date().toISOString() })
+                    .eq('id', adminData.id);
+
+                // Store login state
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                sessionStorage.setItem('adminUsername', adminData.username);
+                sessionStorage.setItem('adminId', adminData.id);
+
+                // Redirect to index.html
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Login failed. Please try again.');
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

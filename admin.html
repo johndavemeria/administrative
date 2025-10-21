@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Looms - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .header-logo-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        :root {
+            --primary-brown: #8B4513;
+            --light-brown: #D2B48C;
+            --dark-brown: #654321;
+            --cream: #F5E6D3;
+            --gold: #DAA520;
+            --white: #FFFFFF;
+            --gray: #6B7280;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--light-brown) 100%);
+            min-height: 100vh;
+            color: var(--dark-brown);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark-brown) 0%, var(--primary-brown) 100%);
+            color: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.3rem;
+        }
+
+        .header-left p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-badge {
+            background: var(--gold);
+            color: var(--dark-brown);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #DC2626;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--light-brown);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--dark-brown);
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-brown);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .stat-card.pending {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.approved {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.rejected {
+            border-left-color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+            font-size: 1.2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .approval-section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-brown);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark-brown);
+            font-weight: bold;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--light-brown);
+            border-radius: 6px;
+            background: var(--white);
+            color: var(--dark-brown);
+            cursor: pointer;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-brown);
+        }
+
+        .table tbody tr:hover {
+            background: var(--cream);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        .status-approved {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .status-rejected {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .status-active {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .status-draft {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .status-scheduled {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .status-checked_in {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        .status-checked_out {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-reject {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-view {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .btn-edit {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--white);
+            margin: 3% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-brown);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--dark-brown);
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close:hover {
+            color: var(--danger);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-brown);
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light-brown);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-brown);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            font-weight: bold;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <img src="logoo.png" alt="Urban Looms Logo" class="header-logo-img" onerror="this.style.display='none'">
+            <div>
+                <h1>Urban Looms</h1>
+                <p>Administrative Dashboard & Approval Center</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="admin-badge">👤 Admin</div>
+            <button class="logout-btn" onclick="logout()"> Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="switchView('dashboard')">📊 Dashboard</button>
+            <button class="toggle-btn" onclick="switchView('facilities')">🏢 Facilities</button>
+            <button class="toggle-btn" onclick="switchView('documents')">📁 Documents</button>
+            <button class="toggle-btn" onclick="switchView('legal')">⚖️ Legal</button>
+            <button class="toggle-btn" onclick="switchView('visitors')">👥 Visitors</button>
+        </div>
+
+        <div id="dashboard-view" class="view-section active">
+            <div class="stats-grid">
+                <div class="stat-card pending">
+                    <h3>PENDING APPROVALS</h3>
+                    <div class="number" id="total-pending">0</div>
+                    <div class="label">Awaiting Review</div>
+                </div>
+                <div class="stat-card approved">
+                    <h3>APPROVED TODAY</h3>
+                    <div class="number" id="approved-today">0</div>
+                    <div class="label">Processed</div>
+                </div>
+                <div class="stat-card">
+                    <h3>TOTAL DOCUMENTS</h3>
+                    <div class="number" id="total-docs">0</div>
+                    <div class="label">All Sections</div>
+                </div>
+                <div class="stat-card">
+                    <h3>TOTAL VISITORS</h3>
+                    <div class="number" id="total-visitors">0</div>
+                    <div class="label">Registered</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📊 Documents by Status</h3>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>📈 Documents by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📅 Monthly Submissions</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>🏢 Facilities Usage</h3>
+                    <div class="chart-container">
+                        <canvas id="facilitiesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="facilities-view" class="view-section">
+            <div class="approval-section">
+                <div class="section-header">
+                    <h2 class="section-title">Facilities Reservations</h2>
+                </div>
+                <div class="filters">
+                    <select class="filter-select" id="facilities-status-filter" onchange="filterFacilities()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="loading" id="facilities-loading">Loading...</div>
+                <div class="table-container" id="facilities-table-container" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Facility</th>
+                                <th>Reserved By</th>
+                                <th>Date & Time</th>
+                                <th>Duration</th>
+                                <th>Purpose</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facilities-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="documents-view" class="view-section">
+            <div class="approval-section">
+                <div class="section-header">
+                    <h2 class="section-title">Document Management</h2>
+                </div>
+                <div class="filters">
+                    <select class="filter-select" id="documents-status-filter" onchange="filterDocuments()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select class="filter-select" id="documents-category-filter" onchange="filterDocuments()">
+                        <option value="">All Categories</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Report">Report</option>
+                        <option value="Policy">Policy</option>
+                        <option value="Memo">Memo</option>
+                    </select>
+                </div>
+                <div class="loading" id="documents-loading">Loading...</div>
+                <div class="table-container" id="documents-table-container" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Uploaded By</th>
+                                <th>Upload Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="documents-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="legal-view" class="view-section">
+            <div class="approval-section">
+                <div class="section-header">
+                    <h2 class="section-title">Legal Documents</h2>
+                </div>
+                <div class="filters">
+                    <select class="filter-select" id="legal-status-filter" onchange="filterLegal()">
+                        <option value="">All Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="pending_review">Pending Review</option>
+                        <option value="active">Active</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="loading" id="legal-loading">Loading...</div>
+                <div class="table-container" id="legal-table-container" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Type</th>
+                                <th>Parties</th>
+                                <th>Effective Date</th>
+                                <th>Contract Value</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="legal-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="visitors-view" class="view-section">
+            <div class="approval-section">
+                <div class="section-header">
+                    <h2 class="section-title">Visitor Management</h2>
+                </div>
+                <div class="filters">
+                    <select class="filter-select" id="visitors-status-filter" onchange="filterVisitors()">
+                        <option value="">All Status</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="loading" id="visitors-loading">Loading...</div>
+                <div class="table-container" id="visitors-table-container" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Visitor Name</th>
+                                <th>Company</th>
+                                <th>Host</th>
+                                <th>Visit Date</th>
+                                <th>Purpose</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitors-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewModalTitle">Details</h3>
+                <span class="close" onclick="closeModal('viewModal')">&times;</span>
+            </div>
+            <div id="viewModalBody"></div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Details</h3>
+                <span class="close" onclick="closeModal('editModal')">&times;</span>
+            </div>
+            <form id="editForm">
+                <div id="editFormBody"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-reject" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn btn-approve">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://imhfolbfxfsojtpwoddf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaGZvbGJmeGZzb2p0cHdvZGRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDg0NzksImV4cCI6MjA3MTg4NDQ3OX0.M-SxwxLrSqu2HR3p05G_Aq3zVEHwKx6vWYZSNTuPQw0';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allFacilities = [];
+let allDocuments = [];
+let allLegal = [];
+let allVisitors = [];
+let charts = {};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadAllData();
+    initCharts();
+    showNotification('Admin Dashboard Loaded', 'success');
+});
+
+async function loadAllData() {
+    await Promise.all([
+        loadFacilities(),
+        loadDocuments(),
+        loadLegal(),
+        loadVisitors()
+    ]);
+    updateDashboardStats();
+}
+
+async function loadFacilities() {
+    try {
+        const { data, error } = await supabase
+            .from('facilities_reservations')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        allFacilities = data || [];
+        renderFacilities();
+    } catch (error) {
+        console.error('Error loading facilities:', error);
+    }
+}
+
+async function loadDocuments() {
+    try {
+        const { data, error } = await supabase
+            .from('documents')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        allDocuments = data || [];
+        renderDocuments();
+    } catch (error) {
+        console.error('Error loading documents:', error);
+    }
+}
+
+async function loadLegal() {
+    try {
+        const { data, error } = await supabase
+            .from('legal_documents')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        allLegal = data || [];
+        renderLegal();
+    } catch (error) {
+        console.error('Error loading legal:', error);
+    }
+}
+
+async function loadVisitors() {
+    try {
+        const { data, error } = await supabase
+            .from('visitors')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        allVisitors = data || [];
+        renderVisitors();
+    } catch (error) {
+        console.error('Error loading visitors:', error);
+    }
+}
+
+function renderFacilities() {
+    const tbody = document.getElementById('facilities-tbody');
+    const loading = document.getElementById('facilities-loading');
+    const container = document.getElementById('facilities-table-container');
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+    tbody.innerHTML = '';
+
+    const filtered = filterData(allFacilities, 'facilities-status-filter');
+    
+    filtered.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.facility_name}</td>
+            <td>${item.reserved_by}</td>
+            <td>${formatDate(item.reservation_date)} ${item.reservation_time}</td>
+            <td>${item.duration} hrs</td>
+            <td>${item.purpose || '-'}</td>
+            <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+            <td>
+                <button class="btn btn-view" onclick="viewDetails('facilities', '${item.id}')">View</button>
+                <button class="btn btn-edit" onclick="editItem('facilities', '${item.id}')">Edit</button>
+                ${item.status === 'pending' ? `
+                    <button class="btn btn-approve" onclick="approveItem('facilities', '${item.id}')">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectItem('facilities', '${item.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderDocuments() {
+    const tbody = document.getElementById('documents-tbody');
+    const loading = document.getElementById('documents-loading');
+    const container = document.getElementById('documents-table-container');
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+    tbody.innerHTML = '';
+
+    let filtered = allDocuments;
+    const statusFilter = document.getElementById('documents-status-filter')?.value;
+    const categoryFilter = document.getElementById('documents-category-filter')?.value;
+    
+    if (statusFilter) filtered = filtered.filter(d => d.status === statusFilter);
+    if (categoryFilter) filtered = filtered.filter(d => d.category === categoryFilter);
+    
+    filtered.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.document_name}</td>
+            <td>${item.document_type}</td>
+            <td>${item.category}</td>
+            <td>${item.uploaded_by}</td>
+            <td>${formatDate(item.upload_date)}</td>
+            <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+            <td>
+                <button class="btn btn-view" onclick="viewDetails('documents', '${item.id}')">View</button>
+                <button class="btn btn-edit" onclick="editItem('documents', '${item.id}')">Edit</button>
+                ${item.status === 'draft' || item.status === 'pending' ? `
+                    <button class="btn btn-approve" onclick="approveItem('documents', '${item.id}')">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectItem('documents', '${item.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderLegal() {
+    const tbody = document.getElementById('legal-tbody');
+    const loading = document.getElementById('legal-loading');
+    const container = document.getElementById('legal-table-container');
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+    tbody.innerHTML = '';
+
+    const filtered = filterData(allLegal, 'legal-status-filter');
+    
+    filtered.forEach(item => {
+        const row = document.createElement('tr');
+        const parties = item.party_names ? item.party_names.join(', ') : 'N/A';
+        const value = item.contract_value ? `₱${item.contract_value.toLocaleString()}` : 'N/A';
+        
+        row.innerHTML = `
+            <td>${item.document_name}</td>
+            <td>${item.document_type}</td>
+            <td>${parties}</td>
+            <td>${formatDate(item.effective_date)}</td>
+            <td>${value}</td>
+            <td><span class="status-badge status-${item.status}">${item.status.replace('_', ' ')}</span></td>
+            <td>
+                <button class="btn btn-view" onclick="viewDetails('legal', '${item.id}')">View</button>
+                <button class="btn btn-edit" onclick="editItem('legal', '${item.id}')">Edit</button>
+                ${item.status === 'draft' || item.status === 'pending_review' ? `
+                    <button class="btn btn-approve" onclick="approveItem('legal', '${item.id}')">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectItem('legal', '${item.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderVisitors() {
+    const tbody = document.getElementById('visitors-tbody');
+    const loading = document.getElementById('visitors-loading');
+    const container = document.getElementById('visitors-table-container');
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+    tbody.innerHTML = '';
+
+    const filtered = filterData(allVisitors, 'visitors-status-filter');
+    
+    filtered.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.visitor_name}</td>
+            <td>${item.visitor_company || '-'}</td>
+            <td>${item.host_name}</td>
+            <td>${formatDate(item.visit_date)}</td>
+            <td>${item.visit_purpose}</td>
+            <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+            <td>
+                <button class="btn btn-view" onclick="viewDetails('visitors', '${item.id}')">View</button>
+                <button class="btn btn-edit" onclick="editItem('visitors', '${item.id}')">Edit</button>
+                ${item.status === 'pending' ? `
+                    <button class="btn btn-approve" onclick="approveItem('visitors', '${item.id}')">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectItem('visitors', '${item.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+async function approveItem(type, id) {
+    if (!confirm('Approve this item?')) return;
+
+    try {
+        let table, status, successMessage, updateData;
+        
+        switch(type) {
+            case 'facilities':
+                table = 'facilities_reservations';
+                status = 'approved';
+                successMessage = 'Facility reservation approved!';
+                updateData = { status: status };
+                break;
+            case 'documents':
+                table = 'documents';
+                status = 'active';
+                successMessage = 'Document approved and activated!';
+                updateData = { status: status };
+                break;
+            case 'legal':
+                table = 'legal_documents';
+                status = 'active';
+                successMessage = 'Legal document approved!';
+                updateData = { status: status };
+                break;
+            case 'visitors':
+                table = 'visitors';
+                status = 'approved';
+                successMessage = 'Visitor approved!';
+                updateData = { status: status };
+                break;
+        }
+
+        const { error } = await supabase
+            .from(table)
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showNotification(successMessage, 'success');
+        await loadAllData();
+        updateCharts();
+    } catch (error) {
+        console.error('Error approving:', error);
+        showNotification('Error approving item', 'error');
+    }
+}
+
+async function rejectItem(type, id) {
+    const reason = prompt('Rejection reason (optional):');
+    if (reason === null) return;
+
+    try {
+        let table, successMessage, updateData;
+        
+        switch(type) {
+            case 'facilities':
+                table = 'facilities_reservations';
+                successMessage = 'Facility reservation rejected!';
+                updateData = { status: 'rejected' };
+                break;
+            case 'documents':
+                table = 'documents';
+                successMessage = 'Document rejected!';
+                updateData = { status: 'rejected' };
+                break;
+            case 'legal':
+                table = 'legal_documents';
+                successMessage = 'Legal document rejected!';
+                updateData = { status: 'rejected' };
+                break;
+            case 'visitors':
+                table = 'visitors';
+                successMessage = 'Visitor rejected!';
+                updateData = { status: 'rejected' };
+                break;
+        }
+
+        const { error } = await supabase
+            .from(table)
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showNotification(successMessage, 'success');
+        await loadAllData();
+        updateCharts();
+    } catch (error) {
+        console.error('Error rejecting:', error);
+        showNotification('Error rejecting item', 'error');
+    }
+}
+
+function viewDetails(type, id) {
+    let item;
+    switch(type) {
+        case 'facilities':
+            item = allFacilities.find(f => f.id === id);
+            break;
+        case 'documents':
+            item = allDocuments.find(d => d.id === id);
+            break;
+        case 'legal':
+            item = allLegal.find(l => l.id === id);
+            break;
+        case 'visitors':
+            item = allVisitors.find(v => v.id === id);
+            break;
+    }
+
+    if (!item) return;
+
+    const modalBody = document.getElementById('viewModalBody');
+    let html = '<div class="detail-grid">';
+
+    Object.entries(item).forEach(([key, value]) => {
+        if (key !== 'id' && value !== null && value !== undefined) {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            let displayValue = value;
+            
+            if (Array.isArray(value)) {
+                displayValue = value.join(', ');
+            } else if (typeof value === 'boolean') {
+                displayValue = value ? 'Yes' : 'No';
+            } else if (key.includes('date') && value) {
+                displayValue = formatDate(value);
+            }
+            
+            html += `
+                <div class="detail-item">
+                    <div class="detail-label">${label}</div>
+                    <div class="detail-value">${displayValue}</div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    
+    if (item.file_url) {
+        html += `<div style="margin-top: 1rem;">
+            <button class="btn btn-view" onclick="window.open('${item.file_url}', '_blank')">Open File</button>
+        </div>`;
+    }
+
+    modalBody.innerHTML = html;
+    document.getElementById('viewModal').style.display = 'block';
+}
+
+function editItem(type, id) {
+    let item;
+    switch(type) {
+        case 'facilities':
+            item = allFacilities.find(f => f.id === id);
+            break;
+        case 'documents':
+            item = allDocuments.find(d => d.id === id);
+            break;
+        case 'legal':
+            item = allLegal.find(l => l.id === id);
+            break;
+        case 'visitors':
+            item = allVisitors.find(v => v.id === id);
+            break;
+    }
+
+    if (!item) return;
+
+    const formBody = document.getElementById('editFormBody');
+    let html = `<input type="hidden" id="edit-type" value="${type}">
+                <input type="hidden" id="edit-id" value="${id}">`;
+
+    const excludeFields = ['id', 'created_at', 'updated_at', 'approved_by', 'approved_at', 'rejected_by', 'rejected_at'];
+    
+    // Fields that shouldn't be edited as they may have different types in DB
+    const timeOnlyFields = ['reservation_time', 'check_in_time', 'check_out_time', 'start_time', 'end_time'];
+    
+    Object.entries(item).forEach(([key, value]) => {
+        if (!excludeFields.includes(key) && !timeOnlyFields.includes(key)) {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            let inputHtml = '';
+
+            if (key === 'status') {
+                let statuses;
+                if (type === 'legal') {
+                    statuses = ['draft', 'pending_review', 'active', 'rejected', 'expired'];
+                } else if (type === 'visitors') {
+                    statuses = ['pending', 'approved', 'checked_in', 'checked_out', 'cancelled'];
+                } else {
+                    statuses = ['pending', 'active', 'approved', 'rejected'];
+                }
+                
+                inputHtml = `<select class="form-control" id="edit-${key}">
+                    ${statuses.map(s => `<option value="${s}" ${s === value ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>`;
+            } else if (typeof value === 'boolean') {
+                inputHtml = `<input type="checkbox" id="edit-${key}" ${value ? 'checked' : ''}>`;
+            } else if (key.includes('date')) {
+                const dateValue = value ? value.split('T')[0] : '';
+                inputHtml = `<input type="date" class="form-control" id="edit-${key}" value="${dateValue}">`;
+            } else if (key.includes('time')) {
+                inputHtml = `<input type="time" class="form-control" id="edit-${key}" value="${value || ''}">`;
+            } else if (Array.isArray(value)) {
+                inputHtml = `<input type="text" class="form-control" id="edit-${key}" value="${value.join(', ')}" data-is-array="true">`;
+            } else if (key === 'purpose' || key === 'description' || key.includes('notes')) {
+                inputHtml = `<textarea class="form-control" id="edit-${key}">${value || ''}</textarea>`;
+            } else if (typeof value === 'number') {
+                inputHtml = `<input type="number" class="form-control" id="edit-${key}" value="${value || ''}" step="0.01">`;
+            } else {
+                inputHtml = `<input type="text" class="form-control" id="edit-${key}" value="${value || ''}">`;
+            }
+
+            html += `
+                <div class="form-group">
+                    <label class="form-label">${label}</label>
+                    ${inputHtml}
+                </div>
+            `;
+        }
+    });
+
+    formBody.innerHTML = html;
+    document.getElementById('editModal').style.display = 'block';
+}
+
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const type = document.getElementById('edit-type').value;
+    const id = document.getElementById('edit-id').value;
+    
+    let table, originalItem;
+    switch(type) {
+        case 'facilities': 
+            table = 'facilities_reservations';
+            originalItem = allFacilities.find(f => f.id === id);
+            break;
+        case 'documents': 
+            table = 'documents';
+            originalItem = allDocuments.find(d => d.id === id);
+            break;
+        case 'legal': 
+            table = 'legal_documents';
+            originalItem = allLegal.find(l => l.id === id);
+            break;
+        case 'visitors': 
+            table = 'visitors';
+            originalItem = allVisitors.find(v => v.id === id);
+            break;
+    }
+
+    const updateData = {};
+    const formElements = document.getElementById('editFormBody').querySelectorAll('input, select, textarea');
+    
+    formElements.forEach(el => {
+        if (el.id.startsWith('edit-')) {
+            const key = el.id.replace('edit-', '');
+            
+            // Only include fields that exist in the original item
+            if (originalItem && originalItem.hasOwnProperty(key)) {
+                if (el.type === 'checkbox') {
+                    updateData[key] = el.checked;
+                } else if (el.dataset.isArray === 'true' || Array.isArray(originalItem[key])) {
+                    // Handle array fields properly
+                    const arrayValue = el.value.trim();
+                    if (arrayValue) {
+                        // Split by comma and trim each item
+                        updateData[key] = arrayValue.split(',').map(v => v.trim()).filter(v => v);
+                    } else {
+                        updateData[key] = [];
+                    }
+                } else if (el.type === 'number') {
+                    // Handle numeric fields
+                    updateData[key] = el.value ? parseFloat(el.value) : null;
+                } else if (el.type === 'time') {
+                    // Handle time fields - keep as time string only
+                    updateData[key] = el.value || null;
+                } else if (el.type === 'date') {
+                    // Handle date fields - keep as date string only
+                    updateData[key] = el.value || null;
+                } else {
+                    updateData[key] = el.value;
+                }
+            }
+        }
+    });
+
+    try {
+        const { error } = await supabase
+            .from(table)
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showNotification('Updated successfully!', 'success');
+        closeModal('editModal');
+        await loadAllData();
+        updateCharts();
+    } catch (error) {
+        console.error('Error updating:', error);
+        showNotification('Error updating item: ' + error.message, 'error');
+    }
+});
+
+function filterFacilities() {
+    renderFacilities();
+}
+
+function filterDocuments() {
+    renderDocuments();
+}
+
+function filterLegal() {
+    renderLegal();
+}
+
+function filterVisitors() {
+    renderVisitors();
+}
+
+function filterData(data, filterElementId) {
+    const filter = document.getElementById(filterElementId)?.value;
+    if (!filter) return data;
+    return data.filter(item => item.status === filter);
+}
+
+function updateDashboardStats() {
+    const pendingFacilities = allFacilities.filter(f => f.status === 'pending').length;
+    const pendingDocs = allDocuments.filter(d => d.status === 'draft' || d.status === 'pending').length;
+    const pendingLegal = allLegal.filter(l => l.status === 'draft' || l.status === 'pending_review').length;
+    const pendingVisitors = allVisitors.filter(v => v.status === 'pending').length;
+    
+    document.getElementById('total-pending').textContent = 
+        pendingFacilities + pendingDocs + pendingLegal + pendingVisitors;
+
+    const today = new Date().toISOString().split('T')[0];
+    const approvedToday = [
+        ...allFacilities.filter(f => f.status === 'approved' && f.updated_at && f.updated_at.startsWith(today)),
+        ...allDocuments.filter(d => d.status === 'active' && d.updated_at && d.updated_at.startsWith(today)),
+        ...allLegal.filter(l => l.status === 'active' && l.updated_at && l.updated_at.startsWith(today))
+    ].length;
+    
+    document.getElementById('approved-today').textContent = approvedToday;
+    document.getElementById('total-docs').textContent = allDocuments.length + allLegal.length;
+    document.getElementById('total-visitors').textContent = allVisitors.length;
+}
+
+function initCharts() {
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    charts.status = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Approved/Active', 'Rejected', 'Draft'],
+            datasets: [{
+                data: [0, 0, 0, 0],
+                backgroundColor: ['#F59E0B', '#10B981', '#EF4444', '#3B82F6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    charts.category = new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Documents',
+                data: [],
+                backgroundColor: '#8B4513'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    charts.monthly = new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Submissions',
+                data: [],
+                borderColor: '#8B4513',
+                backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    const facilitiesCtx = document.getElementById('facilitiesChart').getContext('2d');
+    charts.facilities = new Chart(facilitiesCtx, {
+        type: 'pie',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: ['#8B4513', '#D2B48C', '#DAA520', '#654321', '#B8860B', '#CD853F']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    updateCharts();
+}
+
+function updateCharts() {
+    const pending = allDocuments.filter(d => d.status === 'pending' || d.status === 'draft').length +
+                   allLegal.filter(l => l.status === 'pending_review' || l.status === 'draft').length +
+                   allFacilities.filter(f => f.status === 'pending').length;
+    
+    const approved = allDocuments.filter(d => d.status === 'active').length +
+                   allLegal.filter(l => l.status === 'active').length +
+                   allFacilities.filter(f => f.status === 'approved').length;
+    
+    const rejected = allDocuments.filter(d => d.status === 'rejected').length +
+                   allLegal.filter(l => l.status === 'rejected').length +
+                   allFacilities.filter(f => f.status === 'rejected').length;
+    
+    const draft = allDocuments.filter(d => d.status === 'draft').length +
+                 allLegal.filter(l => l.status === 'draft').length;
+
+    charts.status.data.datasets[0].data = [pending, approved, rejected, draft];
+    charts.status.update();
+
+    const categories = {};
+    allDocuments.forEach(d => {
+        categories[d.category] = (categories[d.category] || 0) + 1;
+    });
+    
+    charts.category.data.labels = Object.keys(categories);
+    charts.category.data.datasets[0].data = Object.values(categories);
+    charts.category.update();
+
+    const monthlyData = {};
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const monthKey = d.toISOString().slice(0, 7);
+        last6Months.push(monthKey);
+        monthlyData[monthKey] = 0;
+    }
+
+    [...allDocuments, ...allLegal, ...allFacilities].forEach(item => {
+        const date = item.created_at || item.upload_date;
+        if (date) {
+            const monthKey = date.slice(0, 7);
+            if (monthlyData.hasOwnProperty(monthKey)) {
+                monthlyData[monthKey]++;
+            }
+        }
+    });
+
+    charts.monthly.data.labels = last6Months.map(m => {
+        const d = new Date(m + '-01');
+        return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    });
+    charts.monthly.data.datasets[0].data = last6Months.map(m => monthlyData[m]);
+    charts.monthly.update();
+
+    const facilityUsage = {};
+    allFacilities.forEach(f => {
+        facilityUsage[f.facility_name] = (facilityUsage[f.facility_name] || 0) + 1;
+    });
+    
+    charts.facilities.data.labels = Object.keys(facilityUsage);
+    charts.facilities.data.datasets[0].data = Object.values(facilityUsage);
+    charts.facilities.update();
+}
+
+function switchView(view) {
+    document.querySelectorAll('.view-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(`${view}-view`).classList.add('active');
+    event.target.classList.add('active');
+
+    if (view === 'dashboard') {
+        updateCharts();
+    }
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        showNotification('Logging out...', 'success');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    }
+}
+
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+    </script>
+</body>
+</html>
