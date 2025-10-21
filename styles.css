@@ -11,6 +11,28 @@
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.btn-approval {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approval:hover {
+            background: #DC2626;
+            transform: translateY(-2px);
+        }
+
 :root {
     --primary-brown: #8B4513;
     --light-brown: #D2B48C;
@@ -573,8 +595,4 @@ body {
     .content-title {
         font-size: 1.5rem;
     }
-}-title {
-        font-size: 1.5rem;
-    }
-
 }
