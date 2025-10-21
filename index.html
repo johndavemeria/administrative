@@ -9,11 +9,14 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <h1>
-                <img src="logoo.png" alt="Urban Looms Logo" class="header-logo-img">
-                Urban Looms
-            </h1>
-            <p>Administrative Management System</p>
+            <div>
+                <h1>
+                    <img src="logoo.png" alt="Urban Looms Logo" class="header-logo-img">
+                    Urban Looms
+                </h1>
+                <p>Administrative Management System</p>
+            </div>
+            <button class="btn-approval" onclick="goToApprovalCenter()">Approval Center</button>
         </div>
     </header>
 
@@ -227,7 +230,7 @@
                         <th>Effective Date</th>
                         <th>Expiration Date</th>
                         <th>Contract Value</th>
-                        <th>Attorney</th>
+                        
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -477,14 +480,11 @@
                         <input type="date" class="form-control" name="renewalDate">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Contract Value ($)</label>
+                        <label class="form-label">Contract Value (PHP)</label>
                         <input type="number" class="form-control" name="contractValue" step="0.01" min="0">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Attorney Assigned</label>
-                    <input type="text" class="form-control" name="attorneyAssigned">
-                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Terms Summary</label>
                     <textarea class="form-control" name="termsSummary" rows="3" placeholder="Brief summary of key terms"></textarea>
@@ -579,14 +579,11 @@
                         <input type="date" class="form-control" name="renewalDate" id="edit-legal-renewal">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Contract Value ($)</label>
+                        <label class="form-label">Contract Value (PHP)</label>
                         <input type="number" class="form-control" name="contractValue" id="edit-legal-value" step="0.01" min="0">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Attorney Assigned</label>
-                    <input type="text" class="form-control" name="attorneyAssigned" id="edit-legal-attorney">
-                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Terms Summary</label>
                     <textarea class="form-control" name="termsSummary" id="edit-legal-terms" rows="3"></textarea>
@@ -759,7 +756,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Accompanying Visitors (comma-separated names)</label>
-                    <input type="text" class="form-control" name="accompanyingVisitors" placeholder="e.g., John Doe, Jane Smith">
+                    <input type="text" class="form-control" name="accompanyingVisitors" placeholder="e.g., John Dave Meria">
                 </div>
                 <div class="grid-2">
                     <div class="form-group">
